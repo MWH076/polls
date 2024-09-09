@@ -1,46 +1,78 @@
-// app.js
-
-document.getElementById('google-login').addEventListener('click', googleLogin);
-document.getElementById('poll-form').addEventListener('submit', submitVote);
-document.getElementById('logout-btn').addEventListener('click', logout);
-document.getElementById('poll-select').addEventListener('change', updatePollQuestion);
-
-let selectedPollId = "poll1";
+document.getElementById('back-btn').addEventListener('click', () => {
+    document.getElementById('poll-details').classList.add('d-none');
+    document.getElementById('poll-list').classList.remove('d-none');
+});
 
 auth.onAuthStateChanged(user => {
     if (user) {
-        document.getElementById('login-container').classList.add('d-none');
-        document.getElementById('poll-container').classList.remove('d-none');
-        checkUserVote(user.uid, selectedPollId);
-    } else {
-        document.getElementById('login-container').classList.remove('d-none');
-        document.getElementById('poll-container').classList.add('d-none');
+        loadPolls();
     }
 });
 
-function googleLogin() {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider)
-        .then(result => {
-            console.log("User logged in:", result.user);
-        })
-        .catch(error => console.error("Login error:", error));
+function loadPolls() {
+    const pollList = document.getElementById('poll-list');
+    db.collection('polls').get().then(snapshot => {
+        snapshot.forEach(doc => {
+            const poll = doc.data();
+            const pollItem = document.createElement('a');
+            pollItem.classList.add('list-group-item', 'list-group-item-action');
+            pollItem.textContent = poll.question;
+            pollItem.href = "#";
+            pollItem.addEventListener('click', () => showPollDetails(doc.id, poll));
+            pollList.appendChild(pollItem);
+        });
+    }).catch(error => console.error("Error loading polls: ", error));
 }
 
-function submitVote(event) {
-    event.preventDefault();
-    const vote = document.querySelector('input[name="vote"]:checked').value;
+function showPollDetails(pollId, poll) {
+    document.getElementById('poll-list').classList.add('d-none');
+    document.getElementById('poll-details').classList.remove('d-none');
+
+    const pollQuestion = document.getElementById('poll-question');
+    pollQuestion.textContent = poll.question;
+
+    const pollForm = document.getElementById('poll-form');
+    pollForm.innerHTML = ''; // Clear previous options
+
+    poll.options.forEach(option => {
+        const optionDiv = document.createElement('div');
+        optionDiv.classList.add('form-check');
+        const optionInput = document.createElement('input');
+        optionInput.classList.add('form-check-input');
+        optionInput.type = 'radio';
+        optionInput.name = 'vote';
+        optionInput.value = option;
+        const optionLabel = document.createElement('label');
+        optionLabel.classList.add('form-check-label');
+        optionLabel.textContent = option;
+        optionDiv.appendChild(optionInput);
+        optionDiv.appendChild(optionLabel);
+        pollForm.appendChild(optionDiv);
+    });
+
+    pollForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedVote = document.querySelector('input[name="vote"]:checked').value;
+        submitVote(pollId, selectedVote);
+    });
+
+    checkUserVote(pollId);
+}
+
+function submitVote(pollId, vote) {
     const userId = auth.currentUser.uid;
 
-    db.collection('polls').doc(selectedPollId).collection('votes').doc(userId).set({
+    db.collection('votes').doc(pollId).collection('userVotes').doc(userId).set({
         vote: vote
     }).then(() => {
         displayResults(vote);
     }).catch(error => console.error("Error submitting vote: ", error));
 }
 
-function checkUserVote(userId, pollId) {
-    db.collection('polls').doc(pollId).collection('votes').doc(userId).get().then(doc => {
+function checkUserVote(pollId) {
+    const userId = auth.currentUser.uid;
+
+    db.collection('votes').doc(pollId).collection('userVotes').doc(userId).get().then(doc => {
         if (doc.exists) {
             displayResults(doc.data().vote);
         }
@@ -50,23 +82,4 @@ function checkUserVote(userId, pollId) {
 function displayResults(vote) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.innerHTML = `<h4>You voted for: ${vote}</h4>`;
-}
-
-function logout() {
-    auth.signOut().then(() => {
-        console.log("User logged out");
-    }).catch(error => console.error("Logout error:", error));
-}
-
-function updatePollQuestion() {
-    selectedPollId = document.getElementById('poll-select').value;
-    if (selectedPollId === "poll1") {
-        document.getElementById('poll-question').textContent = "Who will you be voting for in 2024?";
-    } else if (selectedPollId === "poll2") {
-        document.getElementById('poll-question').textContent = "Who will you be voting for in the Local City Election?";
-    }
-
-    if (auth.currentUser) {
-        checkUserVote(auth.currentUser.uid, selectedPollId);
-    }
 }

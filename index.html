@@ -18,31 +18,20 @@
     </div>
 
     <div class="container mt-5" id="poll-container">
-        <h2>Select Poll</h2>
-        <select id="poll-select" class="form-select mb-3">
-            <option value="poll1">Poll 1: 2024 Election</option>
-            <option value="poll2">Poll 2: Local City Election</option>
-        </select>
-
-        <h2 id="poll-question">Who will you be voting for in 2024?</h2>
-        <form id="poll-form">
-            <div class="form-check">
-                <input type="radio" class="form-check-input" name="vote" value="Kamala 2024" id="kamala">
-                <label class="form-check-label" for="kamala">Kamala 2024</label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" name="vote" value="Trump 2024" id="trump">
-                <label class="form-check-label" for="trump">Trump 2024</label>
-            </div>
-            <div class="form-check">
-                <input type="radio" class="form-check-input" name="vote" value="Other" id="other">
-                <label class="form-check-label" for="other">Other</label>
-            </div>
+        <h1 class="text-center">Poll Dashboard</h1>
+        <div id="poll-list" class="list-group mt-4">
+          <!-- Polls will be dynamically inserted here -->
+        </div>
+        <div id="poll-details" class="mt-4 d-none">
+          <h2 id="poll-question"></h2>
+          <form id="poll-form">
+            <!-- Poll options will be dynamically inserted here -->
             <button type="submit" class="btn btn-success mt-3">Submit Vote</button>
-        </form>
-        <div id="results" class="mt-4"></div>
-        <button id="logout-btn" class="btn btn-danger mt-3">Logout</button>
-    </div>
+          </form>
+          <div id="results" class="mt-4"></div>
+          <button id="back-btn" class="btn btn-secondary mt-3">Back to Polls</button>
+        </div>
+      </div>
 
 
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app-compat.js"></script>
