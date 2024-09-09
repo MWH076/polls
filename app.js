@@ -16,7 +16,10 @@ auth.onAuthStateChanged(user => {
 function googleLogin() {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider)
-        .catch(error => console.error(error));
+        .then(result => {
+            console.log("User logged in:", result.user);
+        })
+        .catch(error => console.error("Login error:", error));
 }
 
 function submitVote(event) {
@@ -45,5 +48,7 @@ function displayResults(vote) {
 }
 
 function logout() {
-    auth.signOut();
+    auth.signOut().then(() => {
+        console.log("User logged out");
+    }).catch(error => console.error("Logout error:", error));
 }
