@@ -17,8 +17,14 @@
         <button class="btn btn-primary w-100 mt-3" id="google-login">Login with Google</button>
     </div>
 
-    <div class="container mt-5 d-none" id="poll-container">
-        <h2>Who will you be voting for in 2024?</h2>
+    <div class="container mt-5" id="poll-container">
+        <h2>Select Poll</h2>
+        <select id="poll-select" class="form-select mb-3">
+            <option value="poll1">Poll 1: 2024 Election</option>
+            <option value="poll2">Poll 2: Local City Election</option>
+        </select>
+
+        <h2 id="poll-question">Who will you be voting for in 2024?</h2>
         <form id="poll-form">
             <div class="form-check">
                 <input type="radio" class="form-check-input" name="vote" value="Kamala 2024" id="kamala">
@@ -37,6 +43,7 @@
         <div id="results" class="mt-4"></div>
         <button id="logout-btn" class="btn btn-danger mt-3">Logout</button>
     </div>
+
 
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.10.0/firebase-auth-compat.js"></script>
